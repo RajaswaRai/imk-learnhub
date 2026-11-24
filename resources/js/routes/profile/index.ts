@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ProfileController::edit
  * @see app/Http/Controllers/ProfileController.php:19
@@ -42,44 +42,9 @@ edit.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     method: 'head',
 })
 
-    /**
-* @see \App\Http\Controllers\ProfileController::edit
- * @see app/Http/Controllers/ProfileController.php:19
- * @route '/profile'
- */
-    const editForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: edit.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\ProfileController::edit
- * @see app/Http/Controllers/ProfileController.php:19
- * @route '/profile'
- */
-        editForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: edit.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\ProfileController::edit
- * @see app/Http/Controllers/ProfileController.php:19
- * @route '/profile'
- */
-        editForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: edit.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    edit.form = editForm
 /**
 * @see \App\Http\Controllers\ProfileController::update
- * @see app/Http/Controllers/ProfileController.php:30
+ * @see app/Http/Controllers/ProfileController.php:47
  * @route '/profile'
  */
 export const update = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -94,7 +59,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\ProfileController::update
- * @see app/Http/Controllers/ProfileController.php:30
+ * @see app/Http/Controllers/ProfileController.php:47
  * @route '/profile'
  */
 update.url = (options?: RouteQueryOptions) => {
@@ -103,7 +68,7 @@ update.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ProfileController::update
- * @see app/Http/Controllers/ProfileController.php:30
+ * @see app/Http/Controllers/ProfileController.php:47
  * @route '/profile'
  */
 update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
@@ -111,40 +76,9 @@ update.patch = (options?: RouteQueryOptions): RouteDefinition<'patch'> => ({
     method: 'patch',
 })
 
-    /**
-* @see \App\Http\Controllers\ProfileController::update
- * @see app/Http/Controllers/ProfileController.php:30
- * @route '/profile'
- */
-    const updateForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-        action: update.url({
-                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                        _method: 'PATCH',
-                        ...(options?.query ?? options?.mergeQuery ?? {}),
-                    }
-                }),
-        method: 'post',
-    })
-
-            /**
-* @see \App\Http\Controllers\ProfileController::update
- * @see app/Http/Controllers/ProfileController.php:30
- * @route '/profile'
- */
-        updateForm.patch = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-            action: update.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'PATCH',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'post',
-        })
-    
-    update.form = updateForm
 /**
 * @see \App\Http\Controllers\ProfileController::destroy
- * @see app/Http/Controllers/ProfileController.php:46
+ * @see app/Http/Controllers/ProfileController.php:63
  * @route '/profile'
  */
 export const destroy = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -159,7 +93,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\ProfileController::destroy
- * @see app/Http/Controllers/ProfileController.php:46
+ * @see app/Http/Controllers/ProfileController.php:63
  * @route '/profile'
  */
 destroy.url = (options?: RouteQueryOptions) => {
@@ -168,45 +102,13 @@ destroy.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\ProfileController::destroy
- * @see app/Http/Controllers/ProfileController.php:46
+ * @see app/Http/Controllers/ProfileController.php:63
  * @route '/profile'
  */
 destroy.delete = (options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
     url: destroy.url(options),
     method: 'delete',
 })
-
-    /**
-* @see \App\Http\Controllers\ProfileController::destroy
- * @see app/Http/Controllers/ProfileController.php:46
- * @route '/profile'
- */
-    const destroyForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-        action: destroy.url({
-                    [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                        _method: 'DELETE',
-                        ...(options?.query ?? options?.mergeQuery ?? {}),
-                    }
-                }),
-        method: 'post',
-    })
-
-            /**
-* @see \App\Http\Controllers\ProfileController::destroy
- * @see app/Http/Controllers/ProfileController.php:46
- * @route '/profile'
- */
-        destroyForm.delete = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-            action: destroy.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'DELETE',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'post',
-        })
-    
-    destroy.form = destroyForm
 const profile = {
     edit: Object.assign(edit, edit),
 update: Object.assign(update, update),

@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\ModuleProgress;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -19,6 +21,29 @@ class ProfileTest extends TestCase
             ->get('/profile');
 
         $response->assertOk();
+    }
+
+    public function test_profile_displays_real_statistics(): void
+    {
+        $user = User::factory()->create();
+
+        ModuleProgress::query()->create([
+            'user_id' => $user->id,
+            'module_id' => '1.1',
+            'completed_at' => now(),
+        ]);
+
+        $this->actingAs($user)
+            ->get('/profile')
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Profile/Edit')
+                ->where('profile.completedLessons', 1)
+                ->where('profile.totalLessons', 16)
+                ->where('profile.passedQuizzes', 0)
+                ->where('profile.averageScore', 0)
+                ->where('profile.streak', 1)
+                ->where('profile.xp', 0));
     }
 
     public function test_profile_information_can_be_updated(): void

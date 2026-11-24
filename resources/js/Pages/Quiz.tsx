@@ -1,10 +1,23 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import LearnHubPageLayout from "@/Components/LearnHub/LearnHubPageLayout";
+import StageCompleteModal from "@/Components/LearnHub/StageCompleteModal";
 import learningPath from "@/routes/learning-path";
 import quizzes from "@/routes/quizzes";
 
 type AuthUser = { name: string; email: string };
+
+type QuizResultFlash = {
+    stage: number;
+    score: number;
+    correct_count: number;
+    total_questions: number;
+    passed: boolean;
+    stage_completed: boolean;
+    next_stage: number | null;
+    xp_earned: number;
+    review_url: string;
+};
 
 type QuizQuestion = {
     question_id: string;
@@ -18,6 +31,7 @@ type QuizQuestion = {
 type QuizProps = {
     auth: { user: AuthUser };
     semester: string;
+    flash?: { quizResult?: QuizResultFlash | null };
     quiz: {
         stage: number;
         title: string;
@@ -29,6 +43,8 @@ type QuizProps = {
         passingScore: number;
         pointsPerQuestion: number;
         passingCorrectCount: number;
+        bestScore: number | null;
+        passed: boolean;
         questions: QuizQuestion[];
     };
 };
@@ -47,8 +63,10 @@ function formatTime(totalSeconds: number): string {
     return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-export default function Quiz({ auth, semester, quiz }: QuizProps) {
+export default function Quiz({ auth, semester, flash, quiz }: QuizProps) {
     const storageKey = `quiz-draft-stage-${quiz.stage}`;
+    const quizResult = flash?.quizResult ?? null;
+    const [showResultModal, setShowResultModal] = useState(Boolean(quizResult));
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -62,9 +80,19 @@ export default function Quiz({ auth, semester, quiz }: QuizProps) {
 
     const submittedRef = useRef(false);
 
+    /* ---------- Tampilkan modal hasil saat flash kuis diterima ---------- */
+    useEffect(() => {
+        if (quizResult) {
+            setShowResultModal(true);
+            setProcessing(false);
+            submittedRef.current = true;
+        }
+    }, [quizResult]);
+
     /* ---------- Pulihkan draf dari penyimpanan browser ---------- */
     useEffect(() => {
         if (typeof window === "undefined") return;
+        if (quizResult) return;
 
         try {
             const raw = window.localStorage.getItem(storageKey);
@@ -89,6 +117,7 @@ export default function Quiz({ auth, semester, quiz }: QuizProps) {
     /* ---------- Simpan draf otomatis ---------- */
     useEffect(() => {
         if (typeof window === "undefined") return;
+        if (quizResult) return;
 
         const draft: Draft = {
             answers,
@@ -98,7 +127,7 @@ export default function Quiz({ auth, semester, quiz }: QuizProps) {
 
         window.localStorage.setItem(storageKey, JSON.stringify(draft));
         setSaveState("saved");
-    }, [answers, flagged, currentIndex, storageKey]);
+    }, [answers, flagged, currentIndex, storageKey, quizResult]);
 
     const answeredCount = Object.keys(answers).length;
     const progressPercentage = Math.round(
@@ -134,6 +163,8 @@ export default function Quiz({ auth, semester, quiz }: QuizProps) {
 
     /* ---------- Timer pengerjaan ---------- */
     useEffect(() => {
+        if (quizResult) return;
+
         if (secondsLeft <= 0) {
             if (!submittedRef.current && answeredCount > 0) {
                 submitQuiz(answers);
@@ -279,6 +310,25 @@ export default function Quiz({ auth, semester, quiz }: QuizProps) {
                             <span className="h-2 w-2 rounded-full bg-[var(--color-accent)]" />
                             {quiz.questionCount} soal total
                         </span>
+                        {quiz.bestScore !== null && (
+                            <span
+                                className={`inline-flex items-center gap-1.5 ${
+                                    quiz.passed
+                                        ? "text-[var(--color-forest-muted)]"
+                                        : "text-[var(--color-muted)]"
+                                }`}
+                            >
+                                <span
+                                    className={`h-2 w-2 rounded-full ${
+                                        quiz.passed
+                                            ? "bg-[var(--color-mint)]"
+                                            : "bg-[var(--color-accent)]"
+                                    }`}
+                                />
+                                Skor terbaik: {quiz.bestScore}
+                                {quiz.passed ? " (lulus)" : ""}
+                            </span>
+                        )}
                     </div>
                 </header>
 
@@ -535,6 +585,15 @@ export default function Quiz({ auth, semester, quiz }: QuizProps) {
                         Jawab seluruh soal sebelum mengumpulkan kuis.
                     </p>
                 )}
+
+                <StageCompleteModal
+                    show={showResultModal}
+                    result={quizResult}
+                    finishHref={
+                        quizResult?.review_url ??
+                        quizzes.review.url(quiz.stage)
+                    }
+                />
             </LearnHubPageLayout>
         </>
     );

@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\ProgressController::__invoke
  * @see app/Http/Controllers/ProgressController.php:10
@@ -41,42 +41,6 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: index.url(options),
     method: 'head',
 })
-
-    /**
-* @see \App\Http\Controllers\ProgressController::__invoke
- * @see app/Http/Controllers/ProgressController.php:10
- * @route '/progress'
- */
-    const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: index.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\ProgressController::__invoke
- * @see app/Http/Controllers/ProgressController.php:10
- * @route '/progress'
- */
-        indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\ProgressController::__invoke
- * @see app/Http/Controllers/ProgressController.php:10
- * @route '/progress'
- */
-        indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: index.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    index.form = indexForm
 const progress = {
     index: Object.assign(index, index),
 }

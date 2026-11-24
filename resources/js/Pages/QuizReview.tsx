@@ -1,6 +1,9 @@
-import { Head, Link } from '@inertiajs/react';
+import { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 import LearnHubPageLayout from '@/Components/LearnHub/LearnHubPageLayout';
+import ConfirmModal from '@/Components/LearnHub/ConfirmModal';
 import learningPath from '@/routes/learning-path';
+import lessons from '@/routes/lessons';
 import quizzes from '@/routes/quizzes';
 
 type AuthUser = { name: string; email: string };
@@ -13,6 +16,7 @@ type Attempt = {
     wrong_count: number;
     passed: boolean;
     submitted_at: string;
+    stageCompleted: boolean;
     review: Array<{
         question_id: string;
         question: string;
@@ -25,6 +29,21 @@ type Attempt = {
 };
 
 export default function QuizReview({ auth, semester, attempt }: { auth: { user: AuthUser }; semester: string; attempt: Attempt }) {
+    const [showRetakeModal, setShowRetakeModal] = useState(false);
+    const [processing, setProcessing] = useState(false);
+
+    const confirmRetake = () => {
+        setProcessing(true);
+
+        if (typeof window !== 'undefined') {
+            window.localStorage.removeItem(`quiz-draft-stage-${attempt.stage}`);
+        }
+
+        router.visit(quizzes.show.url(attempt.stage), {
+            onFinish: () => setProcessing(false),
+        });
+    };
+
     return (
         <>
             <Head title={`Review Kuis Stage ${attempt.stage}`} />
@@ -48,6 +67,24 @@ export default function QuizReview({ auth, semester, attempt }: { auth: { user: 
                             <div className="rounded-xl bg-[var(--color-surface-soft)] p-3"><p className="text-[10px] text-[var(--color-muted)]">Salah</p><p className="mt-1 text-xl font-extrabold text-red-700">{attempt.wrong_count}</p></div>
                         </div>
                     </header>
+
+                    {attempt.passed && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[var(--color-mint)] bg-[var(--color-mint)]/25 p-4">
+                            <p className="text-sm font-bold text-[var(--color-forest)]">
+                                {attempt.stageCompleted
+                                    ? `Stage ${attempt.stage} selesai. Stage ${attempt.stage + 1} kini terbuka.`
+                                    : `Kuis lulus. Selesaikan kedua modul Stage ${attempt.stage} untuk menyelesaikan stage ini.`}
+                            </p>
+                            {attempt.stageCompleted && attempt.stage < 8 && (
+                                <Link
+                                    href={lessons.show.url(`${attempt.stage + 1}.1`)}
+                                    className="inline-flex min-h-10 items-center rounded-xl bg-[var(--color-forest)] px-4 text-xs font-bold text-white"
+                                >
+                                    Mulai Stage {attempt.stage + 1}
+                                </Link>
+                            )}
+                        </div>
+                    )}
 
                     <section className="flex flex-col gap-3" aria-label="Pembahasan jawaban">
                         {attempt.review.map((item, index) => (
@@ -77,13 +114,26 @@ export default function QuizReview({ auth, semester, attempt }: { auth: { user: 
                         <Link href={learningPath.show.url()} className="inline-flex min-h-11 items-center rounded-xl border border-[var(--color-border)] px-5 text-sm font-bold text-[var(--color-forest)]">
                             Kembali ke Alur Belajar
                         </Link>
-                        {!attempt.passed && (
-                            <Link href={quizzes.show.url(attempt.stage)} className="inline-flex min-h-11 items-center rounded-xl bg-[var(--color-forest)] px-5 text-sm font-bold text-white">
-                                Ulangi Kuis
-                            </Link>
-                        )}
+                        <button
+                            type="button"
+                            onClick={() => setShowRetakeModal(true)}
+                            className="inline-flex min-h-11 items-center rounded-xl bg-[var(--color-forest)] px-5 text-sm font-bold text-white transition-colors hover:bg-[var(--color-forest-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-forest)] focus-visible:ring-offset-2"
+                        >
+                            Ulang quiz?
+                        </button>
                     </div>
                 </div>
+
+                <ConfirmModal
+                    show={showRetakeModal}
+                    title="Ulang kuis ini?"
+                    description={`Kamu akan mengerjakan ulang Kuis Stage ${attempt.stage} dari awal. Hasil percobaan ini tetap tersimpan, dan nilai terbaik yang akan dipakai. Lanjutkan?`}
+                    confirmLabel="Ya, ulangi kuis"
+                    cancelLabel="Batal"
+                    onConfirm={confirmRetake}
+                    onCancel={() => setShowRetakeModal(false)}
+                    processing={processing}
+                />
             </LearnHubPageLayout>
         </>
     );

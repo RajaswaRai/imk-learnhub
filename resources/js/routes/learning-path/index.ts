@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
+ * @see app/Http/Controllers/LearningPathController.php:13
  * @route '/learning-path'
  */
 export const show = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
+ * @see app/Http/Controllers/LearningPathController.php:13
  * @route '/learning-path'
  */
 show.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ show.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
+ * @see app/Http/Controllers/LearningPathController.php:13
  * @route '/learning-path'
  */
 show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,49 +34,13 @@ show.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
+ * @see app/Http/Controllers/LearningPathController.php:13
  * @route '/learning-path'
  */
 show.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(options),
     method: 'head',
 })
-
-    /**
-* @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
- * @route '/learning-path'
- */
-    const showForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: show.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
- * @route '/learning-path'
- */
-        showForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\LearningPathController::__invoke
- * @see app/Http/Controllers/LearningPathController.php:11
- * @route '/learning-path'
- */
-        showForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    show.form = showForm
 const learningPath = {
     show: Object.assign(show, show),
 }

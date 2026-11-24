@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\LearningCurriculum;
+use App\LearningProgress;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -18,27 +20,25 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        // return Inertia::render('Profile/Edit', [
-        //     'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-        //     'status' => session('status'),
-        // ]);
+        $progress = new LearningProgress($request->user());
+
         return Inertia::render('Profile/Edit', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => session('status'),
-            'semester' => '...', // sama seperti halaman Learning Path
+            'semester' => 'Semester Ganjil 2026/2027',
             'profile' => [
                 'nrp' => $request->user()->nrp,
                 'studyProgram' => 'Teknik Informatika',
                 'campus' => 'Institut Teknologi Indonesia',
-                'completedLessons' => 10,
-                'totalLessons' => 25,
-                'passedQuizzes' => 8,
-                'averageScore' => 92,
-                'streak' => 4,
-                'xp' => 450,
-                'passwordUpdatedDays' => 30,
-        ],
-]);
+                'completedLessons' => count($progress->completedModuleIds()),
+                'totalLessons' => count(LearningCurriculum::lessons()),
+                'passedQuizzes' => count($progress->passedStages()),
+                'averageScore' => $progress->averageScore(),
+                'streak' => $progress->streakDays(),
+                'xp' => $progress->earnedXp(),
+                'passwordUpdatedDays' => null,
+            ],
+        ]);
     }
 
     /**

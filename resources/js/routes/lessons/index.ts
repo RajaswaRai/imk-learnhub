@@ -1,7 +1,7 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
+ * @see app/Http/Controllers/LessonController.php:15
  * @route '/lessons/{lesson}'
  */
 export const show = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
+ * @see app/Http/Controllers/LessonController.php:15
  * @route '/lessons/{lesson}'
  */
 show.url = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -44,7 +44,7 @@ show.url = (args: { lesson: string | number } | [lesson: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
+ * @see app/Http/Controllers/LessonController.php:15
  * @route '/lessons/{lesson}'
  */
 show.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -53,7 +53,7 @@ show.get = (args: { lesson: string | number } | [lesson: string | number ] | str
 })
 /**
 * @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
+ * @see app/Http/Controllers/LessonController.php:15
  * @route '/lessons/{lesson}'
  */
 show.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -61,43 +61,61 @@ show.head = (args: { lesson: string | number } | [lesson: string | number ] | st
     method: 'head',
 })
 
-    /**
-* @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
- * @route '/lessons/{lesson}'
+/**
+* @see \App\Http\Controllers\LessonController::complete
+ * @see app/Http/Controllers/LessonController.php:55
+ * @route '/lessons/{lesson}/complete'
  */
-    const showForm = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: show.url(args, options),
-        method: 'get',
-    })
+export const complete = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: complete.url(args, options),
+    method: 'post',
+})
 
-            /**
-* @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
- * @route '/lessons/{lesson}'
+complete.definition = {
+    methods: ["post"],
+    url: '/lessons/{lesson}/complete',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\LessonController::complete
+ * @see app/Http/Controllers/LessonController.php:55
+ * @route '/lessons/{lesson}/complete'
  */
-        showForm.get = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\LessonController::__invoke
- * @see app/Http/Controllers/LessonController.php:11
- * @route '/lessons/{lesson}'
- */
-        showForm.head = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: show.url(args, {
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
+complete.url = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { lesson: args }
+    }
+
     
-    show.form = showForm
+    if (Array.isArray(args)) {
+        args = {
+                    lesson: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        lesson: args.lesson,
+                }
+
+    return complete.definition.url
+            .replace('{lesson}', parsedArgs.lesson.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\LessonController::complete
+ * @see app/Http/Controllers/LessonController.php:55
+ * @route '/lessons/{lesson}/complete'
+ */
+complete.post = (args: { lesson: string | number } | [lesson: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: complete.url(args, options),
+    method: 'post',
+})
 const lessons = {
     show: Object.assign(show, show),
+complete: Object.assign(complete, complete),
 }
 
 export default lessons

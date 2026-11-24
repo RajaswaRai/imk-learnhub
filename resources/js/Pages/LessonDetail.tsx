@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import LearnHubPageLayout from "@/Components/LearnHub/LearnHubPageLayout";
 import lessons from "@/routes/lessons";
 import learningPath from "@/routes/learning-path";
@@ -58,6 +58,8 @@ type LessonDetailProps = {
         keyPoints: string[];
         mentorTip: string;
         summary: string;
+        completed: boolean;
+        stageStatus: "completed" | "active" | "locked";
         previousLesson: string | null;
         nextLesson: string | null;
     };
@@ -424,16 +426,29 @@ export default function LessonDetail({
     semester,
     lesson,
 }: LessonDetailProps) {
-    const [isCompleted, setIsCompleted] = useState(false);
-    const progressPercentage = Math.round(
-        (lesson.position / lesson.totalTopics) * 100,
-    );
+    const [isPending, setIsPending] = useState(false);
+    const isCompleted = lesson.completed;
+    const progressPercentage = isCompleted
+        ? 100
+        : Math.round((lesson.position / lesson.totalTopics) * 100);
     const completionHref = lesson.nextLesson
         ? lessons.show.url(lesson.nextLesson)
         : quizzes.show.url(lesson.stage);
     const completionLabel = lesson.nextLesson
         ? "Sesi berikutnya"
         : "Kerjakan Kuis Stage";
+
+    function completeLesson() {
+        setIsPending(true);
+        router.post(
+            lessons.complete.url(lesson.id),
+            {},
+            {
+                preserveScroll: true,
+                onFinish: () => setIsPending(false),
+            },
+        );
+    }
 
     return (
         <>
@@ -624,10 +639,11 @@ export default function LessonDetail({
                     ) : (
                         <button
                             type="button"
-                            onClick={() => setIsCompleted(true)}
-                            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-forest)] px-5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-[var(--color-forest-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-forest)] focus-visible:ring-offset-2"
+                            onClick={completeLesson}
+                            disabled={isPending}
+                            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--color-forest)] px-5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-[var(--color-forest-muted)] disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-forest)] focus-visible:ring-offset-2"
                         >
-                            Tandai Selesai
+                            {isPending ? "Menyimpan..." : "Tandai Selesai"}
                             <span aria-hidden="true" className="ml-2">
                                 →
                             </span>

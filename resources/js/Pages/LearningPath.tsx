@@ -15,7 +15,26 @@ type StageTopic = {
     status: StageStatus;
     duration?: string; // contoh: "15 Menit", "Skor 95 + Lulus"
     kind?: "materi" | "latihan";
+    hasAttempt?: boolean;
 };
+
+/**
+ * Tujuan tautan sebuah topik:
+ * - Materi -> halaman lesson
+ * - Kuis yang sudah pernah dikerjakan -> halaman review (tinjau ulang)
+ * - Kuis yang belum dikerjakan -> halaman kuis
+ */
+function topicHref(topic: StageTopic): string {
+    if (topic.kind !== "latihan") {
+        return lessons.show.url(topic.code);
+    }
+
+    const stage = topic.code.replace("QUIZ-ST-", "");
+
+    return topic.hasAttempt
+        ? quizzes.review.url(stage)
+        : quizzes.show.url(stage);
+}
 
 type LearningStage = {
     number: number;
@@ -133,9 +152,7 @@ function TopicRow({ topic }: { topic: StageTopic }) {
         "flex items-center justify-between gap-3 rounded-xl border px-3 py-2.5 text-sm";
 
     if (topic.status === "active") {
-        const href = topic.kind === "latihan"
-            ? quizzes.show.url(topic.code.replace("QUIZ-ST-", ""))
-            : lessons.show.url(topic.code);
+        const href = topicHref(topic);
         return (
             <Link
                 href={href}
@@ -352,9 +369,7 @@ function ExpandedStageCard({ stage }: { stage: LearningStage }) {
 
                 {stage.status === "active" && nextTopic && (
                     <Link
-                        href={nextTopic.kind === "latihan"
-                            ? quizzes.show.url(nextTopic.code.replace("QUIZ-ST-", ""))
-                            : lessons.show.url(nextTopic.code)}
+                        href={topicHref(nextTopic)}
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--color-forest)] px-5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[var(--color-forest-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-forest)] focus-visible:ring-offset-2"
                     >
                         Lanjutkan Belajar Sekarang
@@ -437,9 +452,7 @@ function ListTopicRow({ topic }: { topic: StageTopic }) {
     }
 
     if (topic.status === "active") {
-        const href = topic.kind === "latihan"
-            ? quizzes.show.url(topic.code.replace("QUIZ-ST-", ""))
-            : lessons.show.url(topic.code);
+        const href = topicHref(topic);
         return (
             <Link
                 href={href}
@@ -584,9 +597,7 @@ function TopicListCard({ stage }: { stage: LearningStage }) {
                     {isActive ? (
                         nextTopic && (
                             <Link
-                                href={nextTopic.kind === "latihan"
-                                    ? quizzes.show.url(nextTopic.code.replace("QUIZ-ST-", ""))
-                                    : lessons.show.url(nextTopic.code)}
+                                href={topicHref(nextTopic)}
                                 className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-[var(--color-forest)] px-4 text-xs font-bold text-white transition-colors hover:bg-[var(--color-forest-muted)]"
                             >
                                 Lanjut Belajar

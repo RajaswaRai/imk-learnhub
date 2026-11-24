@@ -1,4 +1,4 @@
-import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../wayfinder'
+import { queryParams, type RouteQueryOptions, type RouteDefinition } from './../wayfinder'
 /**
 * @see \App\Http\Controllers\DashboardController::__invoke
  * @see app/Http/Controllers/DashboardController.php:11
@@ -42,41 +42,6 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     method: 'head',
 })
 
-    /**
-* @see \App\Http\Controllers\DashboardController::__invoke
- * @see app/Http/Controllers/DashboardController.php:11
- * @route '/dashboard'
- */
-    const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: dashboard.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\DashboardController::__invoke
- * @see app/Http/Controllers/DashboardController.php:11
- * @route '/dashboard'
- */
-        dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: dashboard.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\DashboardController::__invoke
- * @see app/Http/Controllers/DashboardController.php:11
- * @route '/dashboard'
- */
-        dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: dashboard.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    dashboard.form = dashboardForm
 /**
 * @see \App\Http\Controllers\Auth\RegisteredUserController::register
  * @see app/Http/Controllers/Auth/RegisteredUserController.php:22
@@ -120,41 +85,6 @@ register.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     method: 'head',
 })
 
-    /**
-* @see \App\Http\Controllers\Auth\RegisteredUserController::register
- * @see app/Http/Controllers/Auth/RegisteredUserController.php:22
- * @route '/register'
- */
-    const registerForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: register.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\Auth\RegisteredUserController::register
- * @see app/Http/Controllers/Auth/RegisteredUserController.php:22
- * @route '/register'
- */
-        registerForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: register.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\Auth\RegisteredUserController::register
- * @see app/Http/Controllers/Auth/RegisteredUserController.php:22
- * @route '/register'
- */
-        registerForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: register.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    register.form = registerForm
 /**
 * @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
  * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:19
@@ -198,41 +128,6 @@ login.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     method: 'head',
 })
 
-    /**
-* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
- * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:19
- * @route '/login'
- */
-    const loginForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-        action: login.url(options),
-        method: 'get',
-    })
-
-            /**
-* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
- * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:19
- * @route '/login'
- */
-        loginForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: login.url(options),
-            method: 'get',
-        })
-            /**
-* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::login
- * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:19
- * @route '/login'
- */
-        loginForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
-            action: login.url({
-                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
-                            _method: 'HEAD',
-                            ...(options?.query ?? options?.mergeQuery ?? {}),
-                        }
-                    }),
-            method: 'get',
-        })
-    
-    login.form = loginForm
 /**
 * @see \App\Http\Controllers\Auth\AuthenticatedSessionController::logout
  * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:42
@@ -266,25 +161,3 @@ logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: logout.url(options),
     method: 'post',
 })
-
-    /**
-* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::logout
- * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:42
- * @route '/logout'
- */
-    const logoutForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-        action: logout.url(options),
-        method: 'post',
-    })
-
-            /**
-* @see \App\Http\Controllers\Auth\AuthenticatedSessionController::logout
- * @see app/Http/Controllers/Auth/AuthenticatedSessionController.php:42
- * @route '/logout'
- */
-        logoutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
-            action: logout.url(options),
-            method: 'post',
-        })
-    
-    logout.form = logoutForm

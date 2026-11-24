@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\LearningContent;
 use App\LearningCurriculum;
+use App\LearningProgress;
+use App\Models\QuizAttempt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,6 +18,9 @@ class QuizController extends Controller
         abort_unless($stage >= 1 && $stage <= 8, 404);
         $quiz = LearningCurriculum::quiz($stage);
         abort_unless($quiz !== null, 404);
+
+        $progress = new LearningProgress($request->user());
+        abort_unless($progress->isStageUnlocked($stage), 403);
 
         $meta = LearningContent::quizzes()[$stage];
         $questions = array_map(static function (array $question, int $index) use ($meta): array {
@@ -43,9 +48,11 @@ class QuizController extends Controller
                 'topics' => $meta['topics'],
                 'timeLimitMinutes' => $meta['time_limit_minutes'],
                 'questionCount' => count($questions),
-                'passingScore' => 80,
+                'passingScore' => LearningProgress::PASSING_SCORE,
                 'pointsPerQuestion' => 20,
                 'passingCorrectCount' => 4,
+                'bestScore' => $progress->bestScoreFor($stage),
+                'passed' => $progress->hasPassedStage($stage),
                 'questions' => $questions,
             ],
         ]);
@@ -57,17 +64,73 @@ class QuizController extends Controller
         $quiz = LearningCurriculum::quiz($stage);
         abort_unless($quiz !== null, 404);
 
+        $progress = new LearningProgress($request->user());
+        abort_unless($progress->isStageUnlocked($stage), 403);
+
         $validated = $request->validate([
             'answers' => ['present', 'array'],
             'answers.*' => ['string', 'regex:/^[A-D]$/'],
         ]);
 
         $correctCount = 0;
-        $review = [];
         foreach ($quiz as $question) {
             $selected = $validated['answers'][$question['question_id']] ?? null;
+            $correctCount += $selected === $question['correct_option'] ? 1 : 0;
+        }
+
+        $score = $correctCount * 20;
+
+        $attempt = QuizAttempt::query()->create([
+            'user_id' => $request->user()->id,
+            'stage' => $stage,
+            'score' => $score,
+            'correct_count' => $correctCount,
+            'passed' => $score >= LearningProgress::PASSING_SCORE,
+            'answers' => $validated['answers'],
+            'submitted_at' => now(),
+        ]);
+
+        return redirect()->route('quizzes.show', ['stage' => $stage])
+            ->with('quiz_result', [
+                'stage' => $stage,
+                'score' => $attempt->score,
+                'correct_count' => $correctCount,
+                'total_questions' => count($quiz),
+                'passed' => $attempt->passed,
+                'stage_completed' => $progress->stageStatuses()[$stage] === 'completed',
+                'next_stage' => $stage < 8 ? $stage + 1 : null,
+                'xp_earned' => $attempt->passed ? LearningCurriculum::stages()[$stage]['xp'] : 0,
+                'review_url' => route('quizzes.review', ['stage' => $stage], false),
+            ]);
+    }
+
+    public function review(Request $request, int $stage): Response
+    {
+        abort_unless($stage >= 1 && $stage <= 8, 404);
+        $quiz = LearningCurriculum::quiz($stage);
+        abort_unless($quiz !== null, 404);
+
+        $progress = new LearningProgress($request->user());
+        abort_unless($progress->isStageUnlocked($stage), 403);
+
+        $attempt = QuizAttempt::query()
+            ->where('user_id', $request->user()->id)
+            ->where('stage', $stage)
+            ->orderByDesc('submitted_at')
+            ->orderByDesc('id')
+            ->first();
+
+        abort_unless($attempt !== null, 404);
+
+        $answers = $attempt->answers;
+        $review = [];
+        $correctCount = 0;
+
+        foreach ($quiz as $question) {
+            $selected = $answers[$question['question_id']] ?? null;
             $isCorrect = $selected === $question['correct_option'];
             $correctCount += $isCorrect ? 1 : 0;
+
             $review[] = [
                 'question_id' => $question['question_id'],
                 'question' => $question['question'],
@@ -79,31 +142,19 @@ class QuizController extends Controller
             ];
         }
 
-        $score = $correctCount * 20;
-        $attempt = [
-            'attempt_id' => (string) str()->uuid(),
-            'stage' => $stage,
-            'score' => $score,
-            'correct_count' => $correctCount,
-            'wrong_count' => 5 - $correctCount,
-            'passed' => $score >= 80,
-            'submitted_at' => now()->toIso8601String(),
-            'review' => $review,
-        ];
-        $request->session()->put('quiz_attempt_'.$stage, $attempt);
-
-        return redirect()->route('quizzes.review', ['stage' => $stage]);
-    }
-
-    public function review(Request $request, int $stage): Response
-    {
-        abort_unless($stage >= 1 && $stage <= 8, 404);
-        $attempt = $request->session()->get('quiz_attempt_'.$stage);
-        abort_unless(is_array($attempt) && $attempt['stage'] === $stage, 404);
-
         return Inertia::render('QuizReview', [
             'semester' => 'Semester Ganjil 2026/2027',
-            'attempt' => $attempt,
+            'attempt' => [
+                'attempt_id' => (string) $attempt->id,
+                'stage' => $stage,
+                'score' => $attempt->score,
+                'correct_count' => $correctCount,
+                'wrong_count' => count($quiz) - $correctCount,
+                'passed' => $attempt->passed,
+                'submitted_at' => $attempt->submitted_at->toIso8601String(),
+                'stageCompleted' => $progress->stageStatuses()[$stage] === 'completed',
+                'review' => $review,
+            ],
         ]);
     }
 }

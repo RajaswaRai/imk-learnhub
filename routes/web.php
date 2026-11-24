@@ -1,11 +1,11 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\LessonController;
 use App\Http\Controllers\LearningPathController;
-use App\Http\Controllers\QuizController;
+use App\Http\Controllers\LessonController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
+use App\Http\Controllers\QuizController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,6 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/lessons/{lesson}', LessonController::class)
         ->where('lesson', '[1-8]\.[12]')
         ->name('lessons.show');
+    Route::post('/lessons/{lesson}/complete', [LessonController::class, 'complete'])
+        ->where('lesson', '[1-8]\.[12]')
+        ->name('lessons.complete');
     Route::get('/quizzes/stage/{stage}', [QuizController::class, 'show'])
         ->whereNumber('stage')
         ->name('quizzes.show');

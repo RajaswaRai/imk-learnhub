@@ -27,6 +27,7 @@ type ProgressProps = {
         title: string;
         description: string;
         dueInDays: number;
+        lessonId: string;
     };
     modules: Array<{
         label: string;
@@ -194,7 +195,7 @@ export default function Progress({
                         </div>
                         <div className="flex items-center gap-2">
                             <Link
-                                href={lessons.show.url('2.2')}
+                                href={lessons.show.url(nextMilestone.lessonId)}
                                 className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--color-forest)] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[var(--color-forest-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-forest)] focus-visible:ring-offset-2"
                             >
                                 Lanjutkan Belajar Sekarang
@@ -304,10 +305,10 @@ export default function Progress({
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm font-bold text-[var(--color-ink)]">
                                 1. {summary.courseName}
-                                <span className="ml-2 text-[10px] font-medium text-[var(--color-muted)]">· 8 Pertemuan</span>
+                                <span className="ml-2 text-[10px] font-medium text-[var(--color-muted)]">· {summary.totalStages} Pertemuan</span>
                             </p>
                             <p className="text-[10px] font-bold text-[var(--color-forest-muted)]">
-                                Stage 6 Siap Dipelajari
+                                Stage {nextMilestone.lessonId.split('.')[0]} Siap Dipelajari
                             </p>
                         </div>
                         <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
@@ -323,7 +324,7 @@ export default function Progress({
                                 return isActive ? (
                                     <Link
                                         key={module.label}
-                                        href={lessons.show.url('2.2')}
+                                        href={lessons.show.url(nextMilestone.lessonId)}
                                         aria-label={`Buka ${module.label}, modul aktif`}
                                         className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg border text-[10px] font-bold transition-colors hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-forest)] ${style}`}
                                     >
