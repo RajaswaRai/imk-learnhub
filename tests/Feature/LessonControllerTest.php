@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\LearningCurriculum;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -22,8 +23,25 @@ class LessonControllerTest extends TestCase
                 ->where('auth.user.name', $user->name)
                 ->where('lesson.id', '2.2')
                 ->where('lesson.position', 2)
-                ->has('lesson.concepts', 3)
-                ->has('lesson.choices', 0));
+                ->where('lesson.session', 4)
+                ->has('lesson.objectives')
+                ->has('lesson.content')
+                ->has('lesson.keyPoints'));
+    }
+
+    public function test_every_lesson_renders_block_content(): void
+    {
+        $user = User::factory()->make();
+
+        foreach (array_keys(LearningCurriculum::lessons()) as $id) {
+            $this->actingAs($user)
+                ->get(route('lessons.show', ['lesson' => $id]))
+                ->assertOk()
+                ->assertInertia(fn (Assert $page) => $page
+                    ->component('LessonDetail')
+                    ->where('lesson.id', $id)
+                    ->has('lesson.content'));
+        }
     }
 
     public function test_unknown_lesson_is_not_found(): void

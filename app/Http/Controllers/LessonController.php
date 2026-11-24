@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\LearningContent;
 use App\LearningCurriculum;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -12,32 +13,31 @@ class LessonController extends Controller
     {
         $lessons = LearningCurriculum::lessons();
         abort_unless(isset($lessons[$lesson]), 404);
-        $lessonData = $lessons[$lesson];
+
+        $navigation = $lessons[$lesson];
+        $content = LearningContent::modules()[$lesson];
+        $stageDefinition = LearningCurriculum::stages()[$navigation['stage']];
 
         return Inertia::render('LessonDetail', [
             'semester' => 'Semester Ganjil 2026/2027',
             'lesson' => [
-                'id' => $lessonData['id'],
+                'id' => $lesson,
                 'courseName' => 'Pemrograman Dasar',
-                'stage' => $lessonData['stage'],
-                'title' => $lessonData['title'],
-                'concepts' => array_map(static fn (string $text, int $index) => [
-                    'type' => 'Konsep '.($index + 1),
-                    'value' => $text,
-                    'label' => 'RPS Sesi '.$lessonData['session'],
-                    'tone' => $index % 2 === 0 ? 'mint' : 'amber',
-                ], $lessonData['concepts'], array_keys($lessonData['concepts'])),
-                'mentorTip' => $lessonData['tip'],
-                'codeTitle' => 'Pseudocode / Catatan',
-                'runtime' => 'Contoh bacaan statis',
-                'code' => "MULAI\n  Baca konsep modul\n  Hubungkan konsep dengan masalah\n  Tinjau rangkuman\nSELESAI",
-                'output' => null,
-                'question' => null,
-                'choices' => [],
-                'correctChoice' => null,
-                'previousLesson' => $lessonData['previousLesson'],
-                'nextLesson' => $lessonData['nextLesson'],
-                'summary' => $lessonData['summary'],
+                'stage' => $navigation['stage'],
+                'stageTitle' => $stageDefinition['title'],
+                'session' => $navigation['session'],
+                'position' => $navigation['position'],
+                'totalTopics' => 2,
+                'title' => $content['title'],
+                'objective' => $content['objective'],
+                'objectives' => $content['objectives'],
+                'readMinutes' => $content['minutes'],
+                'content' => $content['content'],
+                'keyPoints' => $content['key_points'],
+                'mentorTip' => $content['tip'],
+                'summary' => $content['summary'],
+                'previousLesson' => $navigation['previousLesson'],
+                'nextLesson' => $navigation['nextLesson'],
             ],
         ]);
     }
