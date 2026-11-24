@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\LearningContent;
 use App\LearningCurriculum;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,28 +17,35 @@ class QuizController extends Controller
         $quiz = LearningCurriculum::quiz($stage);
         abort_unless($quiz !== null, 404);
 
-        $questions = array_map(static function (array $question): array {
+        $meta = LearningContent::quizzes()[$stage];
+        $questions = array_map(static function (array $question, int $index) use ($meta): array {
             return [
                 'question_id' => $question['question_id'],
                 'question' => $question['question'],
+                'topic' => $meta['topics'][$index] ?? null,
                 'options' => array_map(
                     static fn (string $text, string $id): array => ['option_id' => $id, 'text' => $text],
                     array_values($question['options']),
                     array_keys($question['options']),
                 ),
                 'points' => $question['points'],
-                'order_index' => (int) substr($question['question_id'], -1),
+                'order_index' => $index + 1,
             ];
-        }, $quiz);
+        }, $quiz, array_keys($quiz));
 
         return Inertia::render('Quiz', [
             'semester' => 'Semester Ganjil 2026/2027',
             'quiz' => [
                 'stage' => $stage,
-                'title' => 'Kuis Stage '.$stage,
-                'description' => LearningCurriculum::stages()[$stage]['title'],
+                'title' => 'Kuis Evaluasi Stage '.$stage,
+                'description' => $meta['description'],
+                'tip' => $meta['tip'],
+                'topics' => $meta['topics'],
+                'timeLimitMinutes' => $meta['time_limit_minutes'],
                 'questionCount' => count($questions),
                 'passingScore' => 80,
+                'pointsPerQuestion' => 20,
+                'passingCorrectCount' => 4,
                 'questions' => $questions,
             ],
         ]);
@@ -50,8 +58,8 @@ class QuizController extends Controller
         abort_unless($quiz !== null, 404);
 
         $validated = $request->validate([
-            'answers' => ['required', 'array', 'size:5'],
-            'answers.*' => ['required', 'string', 'regex:/^[A-D]$/'],
+            'answers' => ['present', 'array'],
+            'answers.*' => ['string', 'regex:/^[A-D]$/'],
         ]);
 
         $correctCount = 0;

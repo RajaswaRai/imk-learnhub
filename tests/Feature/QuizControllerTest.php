@@ -18,8 +18,13 @@ class QuizControllerTest extends TestCase
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Quiz')
+                ->where('quiz.questionCount', 5)
+                ->where('quiz.passingScore', 80)
+                ->where('quiz.timeLimitMinutes', 10)
+                ->has('quiz.topics', 5)
                 ->has('quiz.questions', 5)
                 ->has('quiz.questions.0.options', 4)
+                ->has('quiz.questions.0.topic')
                 ->missing('quiz.questions.0.correct_option')
                 ->missing('quiz.questions.0.explanation'));
     }
@@ -51,13 +56,34 @@ class QuizControllerTest extends TestCase
                 ->has('attempt.review', 5));
     }
 
-    public function test_quiz_submit_requires_all_answers(): void
+    public function test_quiz_submit_scores_partial_answers_when_timer_expires(): void
     {
         $user = User::factory()->make();
 
         $response = $this->actingAs($user)->post(route('quizzes.submit', ['stage' => 1]), [
-            'answers' => [],
+            'answers' => [
+                'Q-ST01-01' => 'B',
+                'Q-ST01-02' => 'C',
+                'Q-ST01-03' => 'A',
+            ],
         ]);
+
+        $response->assertRedirect(route('quizzes.review', ['stage' => 1]));
+
+        $this->actingAs($user)
+            ->get(route('quizzes.review', ['stage' => 1]))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('QuizReview')
+                ->where('attempt.correct_count', 2)
+                ->where('attempt.passed', false));
+    }
+
+    public function test_quiz_submit_requires_answers_payload(): void
+    {
+        $user = User::factory()->make();
+
+        $response = $this->actingAs($user)->post(route('quizzes.submit', ['stage' => 1]), []);
 
         $response->assertSessionHasErrors('answers');
     }

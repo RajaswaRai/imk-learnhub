@@ -5,6 +5,65 @@ namespace App;
 class LearningContent
 {
     /**
+     * Presentation metadata for each stage quiz.
+     *
+     * @return array<int, array{description: string, time_limit_minutes: int, tip: string, topics: array<int, string>}>
+     */
+    public static function quizzes(): array
+    {
+        return [
+            1 => [
+                'description' => 'Uji pemahaman Anda mengenai flowchart, struktur sekuensial, dan logika kondisional dasar sebelum membuka modul berikutnya.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Ingat kembali struktur algoritma: keputusan (decision) memerlukan evaluasi ekspresi relasional sebelum aliran data diteruskan.',
+                'topics' => ['Diagram Alir (Flowchart)', 'Pseudocode & Percabangan', 'Variabel & Tipe Data', 'Komponen IDE', 'Input, Proses, Output'],
+            ],
+            2 => [
+                'description' => 'Uji pemahaman mengenai struktur kontrol seleksi dan perulangan sebagai dasar pengaturan alur program.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Bedakan seleksi (memilih alur) dengan perulangan (mengulang alur), dan pastikan setiap perulangan punya kondisi berhenti.',
+                'topics' => ['Struktur Seleksi', 'Nested If', 'Perulangan For', 'Perulangan Do-While', 'Kondisi Berhenti'],
+            ],
+            3 => [
+                'description' => 'Uji pemahaman mengenai pustaka pemrograman, array satu dimensi, dan manipulasi string.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Perhatikan aturan indeks pada array dan cara kerja setiap operasi string.',
+                'topics' => ['Library', 'Array 1 Dimensi', 'Indeks Array', 'Manipulasi String', 'Operasi String'],
+            ],
+            4 => [
+                'description' => 'Uji pemahaman mengenai array multidimensi dan operasi matriks sebagai penguatan sebelum UTS.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Bayangkan array 2D sebagai tabel; baris dan kolom menentukan posisi setiap elemen.',
+                'topics' => ['Array 2 Dimensi', 'Indeks Baris & Kolom', 'Traversal', 'Penjumlahan Matriks', 'Perulangan Bersarang'],
+            ],
+            5 => [
+                'description' => 'Uji pemahaman mengenai pemrograman modular dan rekursif dalam pemecahan masalah.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Ingat perbedaan fungsi dan prosedur, serta peran base case pada rekursi.',
+                'topics' => ['Pemrograman Modular', 'Return Value', 'Scope Variabel', 'Base Case', 'Call Stack'],
+            ],
+            6 => [
+                'description' => 'Uji pemahaman mengenai struct/record serta algoritma pencarian dan pengurutan dasar.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Pahami karakteristik tiap algoritma: syarat data, cara kerja, dan efisiensinya.',
+                'topics' => ['Struct / Record', 'Member & Field', 'Linear Search', 'Binary Search', 'Selection Sort'],
+            ],
+            7 => [
+                'description' => 'Uji pemahaman mengenai manajemen berkas, Clean Code, keamanan dasar, dan etika profesi.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Bedakan operasi read, write, dan append, serta kaitannya dengan kualitas dan etika kode.',
+                'topics' => ['File I/O', 'Read, Write, Append', 'Clean Code', 'Validasi Input', 'Etika & HAKI'],
+            ],
+            8 => [
+                'description' => 'Uji pemahaman mengenai integrasi proyek mini sebagai penguatan sebelum UAS.',
+                'time_limit_minutes' => 10,
+                'tip' => 'Proyek selalu dimulai dari identifikasi masalah, lalu kebutuhan, perancangan, dan pengujian.',
+                'topics' => ['Identifikasi Masalah', 'Kebutuhan Fungsional', 'Pengujian', 'Debugging', 'Dokumentasi'],
+            ],
+        ];
+    }
+
+    /**
      * Full lesson content for the 16 RPS sessions grouped into 8 stages.
      *
      * Each module exposes: title, session, minutes, objective, objectives[],
