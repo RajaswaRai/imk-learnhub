@@ -1,0 +1,60 @@
+/dashboard
+	-> lanjutkan belajar
+	-> jelajah materi
+
+/materi
+	-> stage x/n (x% selesai)
+	-> peta belajar / daftar modul
+	-> UI daftar modul
+		-> card stages modul 
+		-> card dosen pengampu
+		-> unduh silabus
+		-> hubungi dosen
+		-> Target capaian (cpl)
+	-> UI peta belajar
+		-> card stages modul 
+		-> stages tree animation
+
+/materi/modul/{id}
+	-> judul modul
+	-> isi modul
+	-> tips mentor owl component
+	-> source code card component
+	-> uji pemahaman cepat component
+	-> previous / next page
+	-> Kuis
+		-> tips mentor owl component
+		-> quiz question component
+			-> multiple choice component
+		-> navigasi butir soal
+		-> (optional) catatan dosen pengampu
+		-> previous/next/mark(jawaban ragu)/finish 
+button
+	-> STAGE SELESAI
+		-> skor kuis
+		-> poin xp
+		-> unlocked stage
+
+/progress/quiz/review
+	-> Nilai benar x/n
+	-> card jumlah soal benar
+	-> waktu pengerjaan
+	-> reward xp
+	-> filter
+		-> jawaban benar
+		-> jawaban salah
+	-> list quiz question component
+		-> highlight jawaban benar (hijau)/salah (merah)
+	-> 
+	
+
+/progress
+	-> akumulasi pembelajaran (persenan seluruh modul)
+	-> card materi RPS
+	-> card kuis validasi
+	-> card rata-rata
+	-> card lanjut belajar
+	-> matriks jalur pembelajaran (list progres modul)
+
+
+

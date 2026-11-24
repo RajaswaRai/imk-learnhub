@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --color-canvas: #f9faf6;
+        --color-surface: #ffffff;
+        --color-surface-soft: #f3f4f0;
+        --color-forest: #003326;
+        --color-forest-muted: #164a3b;
+        --color-accent: #eec06b;
+        --color-ink: #1f2d2a;
+        --color-muted: #5d726d;
+        --color-border: #e4ece7;
+        --color-mint: #b0f1cd;
+    }
+}
